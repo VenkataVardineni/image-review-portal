@@ -9,4 +9,9 @@ ENV/
 *.db
 *.sqlite
 .env
+models/
+*.h5
+*.hdf5
+data/
+__pycache__/
 
