@@ -1,0 +1,56 @@
+version: '3.8'
+
+services:
+  classifier:
+    image: your-classifier-image:latest  # Replace with your actual classifier image
+    ports:
+      - "8000:8000"
+    environment:
+      - PORT=8000
+    networks:
+      - review-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    ports:
+      - "8001:8001"
+    environment:
+      - CLASSIFIER_API_URL=http://classifier:8000/classify
+      - DATABASE_URL=sqlite:///./moderation.db
+      - FLAGGED_CLASSES=inappropriate,nsfw,violence,explicit
+    depends_on:
+      - classifier
+    volumes:
+      - ./backend/moderation.db:/app/moderation.db
+    networks:
+      - review-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8001/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+      args:
+        - VITE_API_URL=http://localhost:8001
+    ports:
+      - "3000:80"
+    depends_on:
+      - backend
+    networks:
+      - review-network
+
+networks:
+  review-network:
+    driver: bridge
+
