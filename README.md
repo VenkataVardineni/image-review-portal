@@ -367,9 +367,6 @@ docker build -t image-review-frontend .
 
 Contributions are welcome! Please feel free to submit a Pull Request.
 
-## 📄 License
-
-MIT License - see LICENSE file for details
 
 ## 👤 Author
 
